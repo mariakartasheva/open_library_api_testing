@@ -5,8 +5,6 @@
 
 .idea
 env/
-test_example.py
-test_data_zip_codes.csv
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
