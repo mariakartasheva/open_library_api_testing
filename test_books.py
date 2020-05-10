@@ -40,10 +40,10 @@ class TestResponseFormat():
             f"https://openlibrary.org/api/books?bibkeys=ISBN:0451526538&format={response_format}")
         assert response.status_code == 200, f"Status code for {response_format} is wrong, expected 200, got {response.status_code}."
 
-    def test_wrong_format_returns_200(self):
+    def test_wrong_response_format_returns_200(self):
         response = requests.get(
-            f"https://openlibrary.org/api/books?bibkeys=ISBN:0451526538&format=xml")
-        assert response.status_code == 200, f"Expected status code for wrong data format is 200, got {response.status_code}."
+            "https://openlibrary.org/api/books?bibkeys=ISBN:0451526538&format=xml")
+        assert response.status_code == 200, f"Expected status code for wrong response format is 200, got {response.status_code}."
 
     def test_no_format_returns_javascript_by_default(self):
         response = get_text(
@@ -57,6 +57,11 @@ class TestDataFormat():
         response = requests.get(
             f"https://openlibrary.org/api/books?bibkeys=ISBN:0451526538&jscmd={data_format}")
         assert response.status_code == 200, f"Status code for {data_format} is wrong, expected 200, got {response.status_code}."
+
+    def test_wrong_data_format_returns_200(self):
+        response = requests.get(
+            "https://openlibrary.org/api/books?bibkeys=ISBN:0451526538&jscmd=test")
+        assert response.status_code == 200, f"Expected status code for wrong data format is 200, got {response.status_code}."
 
 
 def test_get_the_book_wrong_request():
