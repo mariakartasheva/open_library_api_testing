@@ -6,8 +6,18 @@ from .api import get_text
 from .api import base_url
 
 
+def test_get_the_book_wrong_request():
+    response = requests.get(
+        "https://openlibrary.org/api/book?bibkeys=ISBN:0451526538")
+    assert response.status_code == 404, f"Expected status code for wrong request is 404, got {response.status_code}."
+
+
+def test_get_the_book_with_no_parameters():
+    response = requests.get(base_url)
+    assert response.status_code == 200, f"Status code for request with no parameters is wrong, expected 200, got {response.status_code}."
+
+
 class TestBibKeys():
-    @pytest.mark.dev
     @pytest.mark.parametrize('bib_key', ["ISBN:0451526538", "LCCN:96072233", "OCLC:36792831", "OLID:OL123M"])
     def test_get_the_book_by_bib_keys(self, bib_key):
         response = requests.get(
@@ -47,10 +57,18 @@ class TestResponseFormat():
             f"{base_url}?bibkeys=ISBN:0451526538&format=xml")
         assert response.status_code == 200, f"Expected status code for wrong response format is 200, got {response.status_code}."
 
+    def test_wrong_response_format_returns_default_format(self):
+        response_format = get_text(
+            f"{base_url}?bibkeys=ISBN:0451526538&format=xml")
+        default_format = get_text(
+            f"{base_url}?bibkeys=ISBN:0451526538")
+        assert response_format[0:3] == default_format[0:
+                                                      3], "Response format is wrong. Expected default response format to be javascript."
+
     def test_no_format_returns_javascript_by_default(self):
         response = get_text(
             f"{base_url}?bibkeys=ISBN:0451526538")
-        assert response[0:3] == 'var', "Response format is wrong. Expected default response format is javascript"
+        assert response[0:3] == 'var', "Response format is wrong. Expected default response format to be javascript."
 
 
 class TestDataFormat():
@@ -64,14 +82,3 @@ class TestDataFormat():
         response = requests.get(
             f"{base_url}?bibkeys=ISBN:0451526538&jscmd=test")
         assert response.status_code == 200, f"Expected status code for wrong data format is 200, got {response.status_code}."
-
-
-def test_get_the_book_wrong_request():
-    response = requests.get(
-        "https://openlibrary.org/api/book?bibkeys=ISBN:0451526538")
-    assert response.status_code == 404, f"Expected status code for wrong request is 404, got {response.status_code}."
-
-
-def test_get_the_book_with_no_parameters():
-    response = requests.get(base_url)
-    assert response.status_code == 200, f"Status code for request with no parameters is wrong, expected 200, got {response.status_code}."
