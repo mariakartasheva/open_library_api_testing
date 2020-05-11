@@ -1,8 +1,8 @@
 import requests
 import json
 
-base_url = "https://openlibrary.org/api/books"
-javascript_format = 'var'
+BASE_URL = "https://openlibrary.org/api/books"
+JAVASCRIPT_FORMAT = 'var'
 
 def get_json_body(url):
     return requests.get(url).json()
