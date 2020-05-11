@@ -1,10 +1,10 @@
 import requests
 import json
 import pytest
-from .api import get_parsed_body
-from .api import get_text
-from .api import base_url
-from .api import javascript_format
+from .helpers import get_json_body
+from .helpers import get_text
+from .helpers import base_url
+from .helpers import javascript_format
 
 
 class TestBasicCases():
@@ -35,16 +35,16 @@ class TestBibKeys():
 
     @pytest.mark.parametrize('bib_key1, bib_key2', [("ISBN:0451526538", "ISBN:0385472579"), ("LCCN:96072233", "LCCN:86072233"), ("OCLC:36792831", "OCLC:297222669"), ("OLID:OL123M", "OLID:OL124M"), ("ISBN:0451526538", "LCCN:86072233")])
     def test_get_different_books(self, bib_key1, bib_key2):
-        first_book = get_parsed_body(
+        first_book = get_json_body(
             f"{base_url}?bibkeys={bib_key1}&format=json")
-        second_book = get_parsed_body(
+        second_book = get_json_body(
             f"{base_url}?bibkeys={bib_key2}&format=json")
         assert first_book[bib_key1]["bib_key"] != second_book[bib_key2][
             "bib_key"], "Books in responses are the same, should be different."
 
     @pytest.mark.parametrize('bib_key', ["ISBN:0451526538", "LCCN:96072233", "OCLC:36792831", "OLID:OL123M"])
     def test_response_has_the_right_book(self, bib_key):
-        book = get_parsed_body(
+        book = get_json_body(
             f"{base_url}?bibkeys={bib_key}&format=json")
         response_bib_key = book[bib_key]["bib_key"]
         assert response_bib_key == bib_key, f'Got the wrong book: should be {bib_key}, got {response_bib_key}.'
