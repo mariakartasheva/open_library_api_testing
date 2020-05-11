@@ -4,17 +4,22 @@ import pytest
 from .api import get_parsed_body
 from .api import get_text
 from .api import base_url
+from .api import javascript_format
 
 
-def test_get_the_book_wrong_request():
-    response = requests.get(
-        "https://openlibrary.org/api/book?bibkeys=ISBN:0451526538")
-    assert response.status_code == 404, f"Expected status code for wrong request is 404, got {response.status_code}."
+class TestBasicCases():
+    def test_get_the_book_wrong_request(self):
+        response = requests.get(
+            "https://openlibrary.org/api/book")
+        assert response.status_code == 404, f"Expected status code for wrong request is 404, got {response.status_code}."
 
+    def test_get_the_book_with_no_parameters(self):
+        response = requests.get(base_url)
+        assert response.status_code == 200, f"Status code for request with no parameters is wrong, expected 200, got {response.status_code}."
 
-def test_get_the_book_with_no_parameters():
-    response = requests.get(base_url)
-    assert response.status_code == 200, f"Status code for request with no parameters is wrong, expected 200, got {response.status_code}."
+    def test_get_the_book_with_no_param_returns_default_format(self):
+        response = get_text(base_url)
+        assert response[0:3] == javascript_format, "Response format is wrong. Expected default response format to be javascript."
 
 
 class TestBibKeys():
@@ -46,29 +51,17 @@ class TestBibKeys():
 
 
 class TestResponseFormat():
-    @pytest.mark.parametrize('response_format', ['json', 'javascript'])
+    @pytest.mark.parametrize('response_format', ['json', 'javascript', 'wrong', ''])
     def test_all_response_format_return_200(self, response_format):
         response = requests.get(
             f"{base_url}?bibkeys=ISBN:0451526538&format={response_format}")
         assert response.status_code == 200, f"Status code for {response_format} is wrong, expected 200, got {response.status_code}."
 
-    def test_wrong_response_format_returns_200(self):
-        response = requests.get(
-            f"{base_url}?bibkeys=ISBN:0451526538&format=xml")
-        assert response.status_code == 200, f"Expected status code for wrong response format is 200, got {response.status_code}."
-
-    def test_wrong_response_format_returns_default_format(self):
+    @pytest.mark.parametrize('response_format', ['wrong', ''])
+    def test_wrong_response_format_returns_default_format(self, response_format):
         response_format = get_text(
-            f"{base_url}?bibkeys=ISBN:0451526538&format=xml")
-        default_format = get_text(
-            f"{base_url}?bibkeys=ISBN:0451526538")
-        assert response_format[0:3] == default_format[0:
-                                                      3], "Response format is wrong. Expected default response format to be javascript."
-
-    def test_no_format_returns_javascript_by_default(self):
-        response = get_text(
-            f"{base_url}?bibkeys=ISBN:0451526538")
-        assert response[0:3] == 'var', "Response format is wrong. Expected default response format to be javascript."
+            f"{base_url}?bibkeys=ISBN:0451526538&format={response_format}")
+        assert response_format[0:3] == javascript_format, "Response format is wrong. Expected default response format to be javascript."
 
 
 class TestDataFormat():
